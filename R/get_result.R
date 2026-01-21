@@ -3,6 +3,8 @@
 #' Scrapes the results table and volunteer IDs from a specific Parkrun event URL.
 #'
 #' @param url A character string specifying the URL of the parkrun results page.
+#' @param event The parkrun event short name (e.g., "bushy"). Required if `url` is not provided.
+#' @param event_no The parkrun event number (e.g., 1).
 #' @param headers A named character vector of HTTP headers to use for the request.
 #'
 #' @return A list containing two elements:

@@ -10,7 +10,6 @@ test_that("get_result", {
   testthat::expect_true("493595" %in% result[["volunteers"]])
   testthat::expect_true("493595" %in% result[["results"]][["id"]])
 
-  test
   result <- get_result(event="wythenshawe", event_no=647)
 
   testthat::expect_s3_class(result, "parkrun_results")

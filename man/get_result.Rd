@@ -18,6 +18,10 @@ get_result(
 \arguments{
 \item{url}{A character string specifying the URL of the parkrun results page.}
 
+\item{event}{The parkrun event short name (e.g., "bushy"). Required if \code{url} is not provided.}
+
+\item{event_no}{The parkrun event number (e.g., 1).}
+
 \item{headers}{A named character vector of HTTP headers to use for the request.}
 }
 \value{
