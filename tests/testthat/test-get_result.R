@@ -7,22 +7,45 @@ test_that("get_result", {
 
   testthat::expect_s3_class(result, "parkrun_results")
 
-  testthat::expect_true("493595" %in% result[["volunteers"]])
-  testthat::expect_true("493595" %in% result[["results"]][["id"]])
+  testthat::expect_equal(result[["results"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
+
+    testthat::expect_equal(result[["volunteers"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
 
   result <- get_result(event="wythenshawe", event_no=647)
 
   testthat::expect_s3_class(result, "parkrun_results")
 
-  testthat::expect_true("493595" %in% result[["volunteers"]])
-  testthat::expect_true("493595" %in% result[["results"]][["id"]])
+  testthat::expect_equal(result[["results"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
+
+    testthat::expect_equal(result[["volunteers"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
+
+  
+  result <- get_result(url, event="wythenshawe", event_no=648)
+  testthat::expect_equal(result[["results"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
+
+    testthat::expect_equal(result[["volunteers"]] |> 
+    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
+    nrow(),
+  1)
 
   testthat::expect_error(
     get_result(),
     "Either 'url' or both 'event' and 'event_no' must be provided."
     )
    
-  result <- get_result(url, event="wythenshawe", event_no=648)
-  testthat::expect_true("493595" %in% result[["volunteers"]])
-  testthat::expect_true("493595" %in% result[["results"]][["id"]])
 })

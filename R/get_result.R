@@ -10,11 +10,12 @@
 #' @return A list containing two elements:
 #' \describe{
 #'   \item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time).}
-#'   \item{volunteer_ids}{A character vector of numeric IDs extracted from volunteer URLs.}
+#'   \item{volunteers}{A dataframe with volunteer IDs and names.}
+#'
 #' }
 #' @export
 #' @importFrom httr GET add_headers timeout status_code content
-#' @importFrom rvest read_html html_element html_table html_nodes html_attr
+#' @importFrom rvest read_html html_element html_table html_nodes html_attr html_text
 #' @importFrom dplyr select mutate
 #' @importFrom stringr str_extract str_trim
 #' @importFrom tidyr drop_na
@@ -65,16 +66,22 @@ get_result = function(
         cbind.data.frame("id"=hyperlinks)
 
       # Extract volunteer URLs
-      volunteer_urls <- html |>
-        html_nodes(xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a") |>
+      volunteer_nodes<- html |>
+        html_nodes(xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a")
+      
+      volunteer_urls <- volunteer_nodes |>
         html_attr("href")
 
       volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
 
+      volunteer_names=volunteer_nodes |> 
+        html_text()
+    
+
       structure(
         list(
           results = results,
-          volunteers = volunteer_ids
+          volunteers = cbind.data.frame("id"=volunteer_ids, "parkrunner"=volunteer_names)
         ),
         class = "parkrun_results"
       )

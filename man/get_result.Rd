@@ -28,7 +28,8 @@ get_result(
 A list containing two elements:
 \describe{
 \item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time).}
-\item{volunteer_ids}{A character vector of numeric IDs extracted from volunteer URLs.}
+\item{volunteers}{A dataframe with volunteer IDs and names.}
+
 }
 }
 \description{

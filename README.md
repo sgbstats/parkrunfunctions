@@ -1,4 +1,6 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # parkrunfunctions
 
 <!-- badges: start -->
@@ -17,55 +19,35 @@ You can install the development version of parkrunfunctions from
 pak::pak("sgbstats/parkrunfunctions")
 ```
 
-## Dependencies
+## Example
 
-This package relies on the following R packages: - `dplyr` - `httr` -
-`janitor` - `rvest` - `stringi` - `stringr` - `tidyr` - `utils`
-
-## Usage
-
-Here’s how to use the main functions of the package.
-
-### 1. Get all runs for a specific parkrunner
-
-To get the complete history of a parkrunner, you need their unique
-parkrun ID. You can find this ID in the URL of their results page (e.g.,
-`https://www.parkrun.org.uk/parkrunner/1674/`).
-
-The `get_all_runs()` function takes a Parkrunner ID and returns a list
-containing the runner’s name, ID, and a data frame of all their results.
+This is a basic example which shows you how to solve a common problem:
 
 ``` r
-# Replace '123456' with the actual Parkrunner ID
-parkrunner_id <- 1674
-runner_history <- get_all_runs(id = parkrunner_id)
-
-# View the structure of the returned object
-print(runner_history$name)
-print(head(runner_history$results))
+library(parkrunfunctions)
+## basic example code
 ```
 
-### 2. Get the results for a specific event
-
-You can retrieve the results for a single parkrun event using the
-`get_result()` function. You can either provide the full URL of the
-results page or specify the `event` name and `event_no`.
+What is special about using `README.Rmd` instead of just `README.md`?
+You can include R chunks like so:
 
 ``` r
-# Option 1: Using the URL
-event_url <- "https://www.parkrun.org.uk/bushy/results/1/"
-event_results <- get_result(url = event_url)
-
-# Option 2: Using event name and number
-event_results_alt <- get_result(event = "bushy", event_no = 1)
-
-
-# The function returns a list with two data frames: results and volunteers
-print(head(event_results$results))
-print(event_results$volunteers)
+summary(cars)
+#>      speed           dist       
+#>  Min.   : 4.0   Min.   :  2.00  
+#>  1st Qu.:12.0   1st Qu.: 26.00  
+#>  Median :15.0   Median : 36.00  
+#>  Mean   :15.4   Mean   : 42.98  
+#>  3rd Qu.:19.0   3rd Qu.: 56.00  
+#>  Max.   :25.0   Max.   :120.00
 ```
 
-## License
+You’ll still need to render `README.Rmd` regularly, to keep `README.md`
+up-to-date. `devtools::build_readme()` is handy for this.
 
-This project is licensed under the MIT License. See the
-[LICENSE](LICENSE) file for details.
+You can also embed plots, for example:
+
+<img src="man/figures/README-pressure-1.png" alt="" width="100%" />
+
+In that case, don’t forget to commit and push the resulting figure
+files, so they display on GitHub and CRAN.
