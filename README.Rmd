@@ -2,8 +2,6 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -16,6 +14,7 @@ knitr::opts_chunk$set(
 # parkrunfunctions
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of parkrunfunctions is to ...
@@ -29,27 +28,43 @@ You can install the development version of parkrunfunctions from [GitHub](https:
 pak::pak("sgbstats/parkrunfunctions")
 ```
 
-## Example
+## Usage
 
-This is a basic example which shows you how to solve a common problem:
+Here's how to use the main functions of the package.
 
-```{r example}
-library(parkrunfunctions)
-## basic example code
+### 1. Get all runs for a specific parkrunner
+
+To get the complete history of a parkrunner, you need their unique parkrun ID. You can find this ID in the URL of their results page (e.g., `https://www.parkrun.org.uk/parkrunner/1674/`).
+
+The `get_all_runs()` function takes a Parkrunner ID and returns a list containing the runner's name, ID, and a data frame of all their results.
+
+``` r
+parkrunner_id <- 1674
+runner_history <- get_all_runs(id = parkrunner_id)
+
+# View the structure of the returned object
+print(runner_history$name)
+print(head(runner_history$results))
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+### 2. Get the results for a specific event
 
-```{r cars}
-summary(cars)
+You can retrieve the results for a single parkrun event using the `get_result()` function. You can either provide the full URL of the results page or specify the `event` name and `event_no`.
+
+``` r
+# Option 1: Using the URL
+event_url <- "https://www.parkrun.org.uk/bushy/results/1/"
+event_results <- get_result(url = event_url)
+
+# Option 2: Using event name and number
+event_results_alt <- get_result(event = "bushy", event_no = 1)
+
+
+# The function returns a list with two data frames: results and volunteers
+print(head(event_results$results))
+print(head(event_results$volunteers))
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+## License
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
