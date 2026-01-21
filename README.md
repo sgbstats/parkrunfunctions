@@ -19,7 +19,8 @@ pak::pak("sgbstats/parkrunfunctions")
 
 ## Usage
 
-Here’s how to use the main functions of the package.
+After each function call, if using a loop, add a break of 20-25 secs to
+not overload the website.
 
 ### 1. Get all runs for a specific parkrunner
 
