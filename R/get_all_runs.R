@@ -2,7 +2,8 @@
 #'
 #' Scrapes the "All Runs" page for a given Parkrunner ID.
 #'
-#' @param id The Parkrunner ID (numeric or string).
+#' @param id The parkrun ID (numeric or string).
+#' @param url The full URL to the parkrunner's "All Runs" page. If provided, this will not override the `id` parameter.
 #' @param headers A named character vector of HTTP headers.
 #'
 #' @return A list of class `parkrun_results` containing the runner's name, ID, and a data frame of results.
@@ -14,7 +15,8 @@
 #' @importFrom stringi stri_trans_general
 #' @importFrom dplyr mutate
 get_all_runs = function(
-  id,
+  id=NULL,
+  url=NULL,
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     `Accept` = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -22,6 +24,10 @@ get_all_runs = function(
     `Connection` = "keep-alive"
   )
 ) {
+
+  if(is.null(id)){
+    id = stringr::str_remove_all(as.character(url), "\\D")
+  }
   id = stringr::str_remove_all(as.character(id), "\\D")
 
   response = httr::GET(

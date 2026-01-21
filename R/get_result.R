@@ -16,8 +16,11 @@
 #' @importFrom dplyr select mutate
 #' @importFrom stringr str_extract str_trim
 #' @importFrom tidyr drop_na
-get_results = function(
-  url,
+#' @importFrom glue glue
+get_result = function(
+  url=NULL,
+  event=NULL,
+  event_no=NULL,
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     `Accept` = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -25,14 +28,28 @@ get_results = function(
     `Connection` = "keep-alive"
   )
 ) {
+
+  if(is.null(url)) {
+    if(is.null(event) | is.null(event_no)) {
+      stop("Either 'url' or both 'event' and 'event_no' must be provided.")
+    }
+    url = glue::glue("https://www.parkrun.org.uk/{event}/results/{event_no}/")
+  }
   response = httr::GET(url, add_headers(.headers = headers), timeout(15))
   tryCatch(
     {
       if (status_code(response) != 200) {
-        message(sprintf("Request failed [%d] for %s", code, url))
+      stop(sprintf("Request failed [%d] for %s", status_code(response), url))
       }
       html <- content(response, as = "text", encoding = "UTF-8") |> read_html()
       tables <- html |> html_element("div.Results.Results")
+
+
+      all_links <- tables |>
+        html_nodes("a") |>
+        html_attr("href")
+      hyperlinks <- all_links[grepl("/parkrunner/", all_links)] |> 
+        stringr::str_extract( "\\d+(?=[^\\d]*$)")
 
       results <- tables |> html_table() |> dplyr::select(c(1, 2, 6))
 
@@ -42,24 +59,29 @@ get_results = function(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim(),
           time = str_extract(time, "^[0-9:]+")
         ) |>
-        drop_na(time)
+        drop_na(time) |> 
+        cbind.data.frame("id"=hyperlinks)
 
       # Extract volunteer URLs
       volunteer_urls <- html |>
         html_nodes(xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a") |>
         html_attr("href")
 
-      # Extract numeric IDs from URLs
       volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
-      
-      structure(list(results = results, volunteers = volunteer_ids),
-    class="parkrun_results")
+
+      structure(
+        list(
+          results = results,
+          volunteers = volunteer_ids
+        ),
+        class = "parkrun_results"
+      )
     },
     error = function(e) {
-      stop("❌ Error: ", conditionMessage(e))
+      stop(conditionMessage(e))
     },
     warning = function(e) {
-      message(conditionMessage(e))
+      warning(conditionMessage(e))
     }
   )
 }

@@ -5,7 +5,8 @@
 \title{Get All Runs for a Parkrunner}
 \usage{
 get_all_runs(
-  id,
+  id = NULL,
+  url = NULL,
   headers = c(`User-Agent` =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     Accept =
@@ -14,7 +15,9 @@ get_all_runs(
 )
 }
 \arguments{
-\item{id}{The Parkrunner ID (numeric or string).}
+\item{id}{The parkrun ID (numeric or string).}
+
+\item{url}{The full URL to the parkrunner's "All Runs" page. If provided, this will not override the \code{id} parameter.}
 
 \item{headers}{A named character vector of HTTP headers.}
 }
