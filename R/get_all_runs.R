@@ -5,6 +5,8 @@
 #' @param id The parkrun ID (numeric or string).
 #' @param url The full URL to the parkrunner's "All Runs" page. If provided, this will not override the `id` parameter.
 #' @param headers A named character vector of HTTP headers.
+#' @param as_hms Return times as hms
+#' @param as_Date Return dates as Date
 #'
 #' @return A list of class `parkrun_results` containing the runner's name, ID, and a data frame of results.
 #' @export
@@ -13,19 +15,23 @@
 #' @importFrom rvest read_html html_elements html_table html_nodes html_attr html_text2
 #' @importFrom janitor clean_names
 #' @importFrom stringi stri_trans_general
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate rename select
+#' @importFrom glue glue
+#' @importFrom lubridate as_date
+#' @importFrom hms as_hms
 get_all_runs = function(
-  id=NULL,
-  url=NULL,
+  id = NULL,
+  url = NULL,
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     `Accept` = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     `Accept-Language` = "en-US,en;q=0.9",
     `Connection` = "keep-alive"
-  )
+  ),
+  as_hms = FALSE,
+  as_Date = FALSE
 ) {
-
-  if(is.null(id)){
+  if (is.null(id)) {
     id = stringr::str_remove_all(as.character(url), "\\D")
   }
   id = stringr::str_remove_all(as.character(id), "\\D")
@@ -53,7 +59,26 @@ get_all_runs = function(
 
       results = results |>
         janitor::clean_names() |>
-        mutate(event = stri_trans_general(event, "Latin-ASCII"))
+        mutate(event = stri_trans_general(event, "Latin-ASCII")) |>
+        dplyr::rename("event_date" = "run_date", "event_no" = "run_number")
+
+      if (as_hms) {
+        results = results |>
+          mutate(
+            time = as_hms(dplyr::if_else(
+              stringr::str_length(time) == 5,
+              paste0("00:", time),
+              time
+            ))
+          )
+      }
+
+      if (as_Date) {
+        results = results |>
+          mutate(
+            event_date = lubridate::as_date(event_date, format = "%d/%m/%Y")
+          )
+      }
 
       h2_nodes <- html |> html_elements("h2")
 
@@ -66,7 +91,7 @@ get_all_runs = function(
         str_sub(2) |>
         as.numeric()
 
-      out = list(name = name, id = id, results = results)
+      out = list(name = name, id = id, results = results |> dplyr::select(-pb))
 
       structure(out, class = "parkrun_results")
     },

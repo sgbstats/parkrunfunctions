@@ -12,7 +12,9 @@ get_result(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     Accept =
     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    `Accept-Language` = "en-US,en;q=0.9", Connection = "keep-alive")
+    `Accept-Language` = "en-US,en;q=0.9", Connection = "keep-alive"),
+  as_hms = FALSE,
+  as_Date = FALSE
 )
 }
 \arguments{
@@ -23,12 +25,17 @@ get_result(
 \item{event_no}{The parkrun event number (e.g., 1).}
 
 \item{headers}{A named character vector of HTTP headers to use for the request.}
+
+\item{as_hms}{Return times as hms}
+
+\item{as_Date}{Return dates as Date}
 }
 \value{
 A list containing two elements:
 \describe{
 \item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time).}
 \item{volunteers}{A dataframe with volunteer IDs and names.}
+\item{date}{The date of the event in ISO format (YYYY-MM-DD).}
 
 }
 }

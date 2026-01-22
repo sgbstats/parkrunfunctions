@@ -16,7 +16,9 @@ Imports:
     stringi,
     stringr,
     tidyr,
-    glue
+    glue,
+    hms,
+    lubridate
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

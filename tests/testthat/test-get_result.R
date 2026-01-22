@@ -1,4 +1,3 @@
-
 test_that("get_result", {
   # Define the URL for the test
   url <- "https://www.parkrun.org.uk/wythenshawe/results/647/"
@@ -7,45 +6,66 @@ test_that("get_result", {
 
   testthat::expect_s3_class(result, "parkrun_results")
 
-  testthat::expect_equal(result[["results"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
 
-    testthat::expect_equal(result[["volunteers"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
+  testthat::expect_equal(
+    result[["volunteers"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
 
-  result <- get_result(event="wythenshawe", event_no=647)
+  testthat::expect_equal(result[["date"]], "2026-01-03")
+  testthat::expect_equal(class(result[["results"]][["time"]]), "character")
+  testthat::expect_equal(class(result[["date"]]), "character")
+
+  result <- get_result(event = "wythenshawe", event_no = 647, as_hms = TRUE)
 
   testthat::expect_s3_class(result, "parkrun_results")
 
-  testthat::expect_equal(result[["results"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
+  testthat::expect_equal(class(result[["results"]][["time"]])[1], "hms")
+  testthat::expect_equal(
+    result[["volunteers"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
 
-    testthat::expect_equal(result[["volunteers"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
+  result <- get_result(
+    url,
+    event = "wythenshawe",
+    event_no = 648,
+    as_Date = TRUE
+  )
 
-  
-  result <- get_result(url, event="wythenshawe", event_no=648)
-  testthat::expect_equal(result[["results"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
+  testthat::expect_s3_class(result, "parkrun_results")
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
 
-    testthat::expect_equal(result[["volunteers"]] |> 
-    dplyr::filter(id=="493595", parkrunner=="Sebastian BATE") |> 
-    nrow(),
-  1)
-
+  testthat::expect_equal(
+    result[["volunteers"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE") |>
+      nrow(),
+    1
+  )
+  testthat::expect_equal(class(result[["date"]]), "Date")
   testthat::expect_error(
     get_result(),
     "Either 'url' or both 'event' and 'event_no' must be provided."
-    )
-   
+  )
 })
