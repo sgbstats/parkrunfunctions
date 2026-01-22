@@ -33,7 +33,7 @@ get_result(
 \value{
 A list containing two elements:
 \describe{
-\item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time).}
+\item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time, ag, id).}
 \item{volunteers}{A dataframe with volunteer IDs and names.}
 \item{date}{The date of the event in ISO format (YYYY-MM-DD).}
 

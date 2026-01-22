@@ -11,7 +11,7 @@
 #'
 #' @return A list containing two elements:
 #' \describe{
-#'   \item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time).}
+#'   \item{results}{A data frame (tibble) with parkrun results (position, parkrunner, time, ag, id).}
 #'   \item{volunteers}{A dataframe with volunteer IDs and names.}
 #'   \item{date}{The date of the event in ISO format (YYYY-MM-DD).}
 #'
@@ -20,7 +20,7 @@
 #' @importFrom httr GET add_headers timeout status_code content
 #' @importFrom rvest read_html html_element html_table html_nodes html_attr html_text
 #' @importFrom dplyr select mutate
-#' @importFrom stringr str_extract str_trim
+#' @importFrom stringr str_extract str_trim str_length
 #' @importFrom tidyr drop_na
 #' @importFrom glue glue
 #' @importFrom hms as_hms
@@ -69,13 +69,14 @@ get_result = function(
       hyperlinks <- all_links[grepl("/parkrunner/", all_links)] |>
         stringr::str_extract("\\d+(?=[^\\d]*$)")
 
-      results <- tables |> html_table() |> dplyr::select(c(1, 2, 6))
+      results <- tables |> html_table() |> dplyr::select(c(1, 2, 6, 4))
 
-      names(results) = c("pos", "parkrunner", "time")
+      names(results) = c("pos", "parkrunner", "time", "ag")
       results = results |>
         mutate(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim(),
-          time = str_extract(time, "^[0-9:]+")
+          time = str_extract(time, "^[0-9:]+"),
+          ag = substr(ag, 8, str_length(ag) - 11) |> as.numeric()
         ) |>
         drop_na(time) |>
         cbind.data.frame("id" = hyperlinks)

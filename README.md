@@ -60,7 +60,7 @@ print(head(event_results$results))
 print(head(event_results$volunteers))
 ```
 
-## License
+The results contain name, id, time and age grade. \## License
 
 This project is licensed under the MIT License. See the
 [LICENSE](LICENSE) file for details.

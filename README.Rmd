@@ -64,7 +64,7 @@ event_results_alt <- get_result(event = "bushy", event_no = 1)
 print(head(event_results$results))
 print(head(event_results$volunteers))
 ```
-
+The results contain name, id, time and age grade.
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

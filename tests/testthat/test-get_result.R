@@ -24,6 +24,17 @@ test_that("get_result", {
   testthat::expect_equal(class(result[["results"]][["time"]]), "character")
   testthat::expect_equal(class(result[["date"]]), "character")
 
+  testthat::expect_equal(
+    (result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE"))$time,
+    "24:24"
+  )
+  testthat::expect_equal(
+    (result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Sebastian BATE"))$ag,
+    52.94
+  )
+
   result <- get_result(event = "wythenshawe", event_no = 647, as_hms = TRUE)
 
   testthat::expect_s3_class(result, "parkrun_results")
