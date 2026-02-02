@@ -8,6 +8,7 @@ get_result(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  domain = "parkrun.org.uk",
   headers = c(`User-Agent` =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     Accept =
@@ -18,11 +19,13 @@ get_result(
 )
 }
 \arguments{
-\item{url}{A character string specifying the URL of the parkrun results page.}
+\item{url}{A character string specifying the URL of the parkrun results page. Non-uk prs need a url or update the domain.}
 
 \item{event}{The parkrun event short name (e.g., "bushy"). Required if \code{url} is not provided.}
 
 \item{event_no}{The parkrun event number (e.g., 1).}
+
+\item{domain}{The parkrun domain (default is "parkrun.org.uk").}
 
 \item{headers}{A named character vector of HTTP headers to use for the request.}
 

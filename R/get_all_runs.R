@@ -19,6 +19,7 @@
 #' @importFrom glue glue
 #' @importFrom lubridate as_date
 #' @importFrom hms as_hms
+#' @importFrom stats time
 get_all_runs = function(
   id = NULL,
   url = NULL,

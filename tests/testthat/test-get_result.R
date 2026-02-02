@@ -79,4 +79,38 @@ test_that("get_result", {
     get_result(),
     "Either 'url' or both 'event' and 'event_no' must be provided."
   )
+
+  testthat::expect_no_warning(
+    get_result(
+      url = "https://www.parkrun.pl/krakow/results/601/"
+    )
+  )
+
+  testthat::expect_equal(
+    get_result(
+      url = "https://www.parkrun.pl/krakow/results/601/"
+    )$results$ag[110],
+    47.47
+  )
+
+  testthat::expect_no_warning(
+    get_result(
+      url = "https://www.parkrun.dk/faelledparken/results/677/"
+    )
+  )
+
+  testthat::expect_error(
+    get_result(
+      event = "faelledparken",
+      event_no = 677
+    )
+  )
+
+  testthat::expect_no_error(
+    get_result(
+      event = "faelledparken",
+      event_no = 677,
+      domain = "parkrun.dk"
+    )
+  )
 })

@@ -1,6 +1,4 @@
 test_that("get_all_runs", {
-  skip_on_cran()
-
   res <- get_all_runs("493595")
 
   expect_equal(res$name, "Sebastian BATE")

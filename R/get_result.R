@@ -2,9 +2,10 @@
 #'
 #' Scrapes the results table and volunteer IDs from a specific Parkrun event URL.
 #'
-#' @param url A character string specifying the URL of the parkrun results page.
+#' @param url A character string specifying the URL of the parkrun results page. Non-uk prs need a url or update the domain.
 #' @param event The parkrun event short name (e.g., "bushy"). Required if `url` is not provided.
 #' @param event_no The parkrun event number (e.g., 1).
+#' @param domain The parkrun domain (default is "parkrun.org.uk").
 #' @param headers A named character vector of HTTP headers to use for the request.
 #' @param as_hms Return times as hms
 #' @param as_Date Return dates as Date
@@ -25,10 +26,12 @@
 #' @importFrom glue glue
 #' @importFrom hms as_hms
 #' @importFrom lubridate as_date
+#' @importFrom stats time
 get_result = function(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  domain = "parkrun.org.uk",
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     `Accept` = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -42,7 +45,7 @@ get_result = function(
     if (is.null(event) | is.null(event_no)) {
       stop("Either 'url' or both 'event' and 'event_no' must be provided.")
     }
-    url = glue::glue("https://www.parkrun.org.uk/{event}/results/{event_no}/")
+    url = glue::glue("https://{domain}/{event}/results/{event_no}/")
   }
   response = httr::GET(url, add_headers(.headers = headers), timeout(15))
   tryCatch(
@@ -76,10 +79,19 @@ get_result = function(
         mutate(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim(),
           time = str_extract(time, "^[0-9:]+"),
-          ag = substr(ag, 8, str_length(ag) - 11) |> as.numeric()
+          ag = substr(
+            ag,
+            (gregexpr(pattern = "\\.", ag)[[1]][1] - 2),
+            (gregexpr(pattern = "%", ag)[[1]][1] - 1)
+          ),
+          .by = pos
         ) |>
         drop_na(time) |>
-        cbind.data.frame("id" = hyperlinks)
+        cbind.data.frame("id" = hyperlinks) |>
+        mutate(
+          pos = as.integer(pos),
+          ag = as.numeric(ag)
+        )
 
       if (as_hms) {
         results = results |>
