@@ -79,7 +79,9 @@ test_that("get_result", {
     get_result(),
     "Either 'url' or both 'event' and 'event_no' must be provided."
   )
+})
 
+test_that("get_result foreign", {
   testthat::expect_no_warning(
     get_result(
       url = "https://www.parkrun.pl/krakow/results/601/"
@@ -111,6 +113,12 @@ test_that("get_result", {
       event = "faelledparken",
       event_no = 677,
       domain = "parkrun.dk"
+    )
+  )
+
+  testthat::expect_no_warning(
+    get_result(
+      url = "https://www.parkrun.jp/chuokoen/results/150"
     )
   )
 })
