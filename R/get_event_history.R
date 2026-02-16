@@ -41,32 +41,33 @@ get_event_history = function(
 
       results <- tables |>
         html_table() |>
-        select(1:4) |>
+        select("event_no" = 1, "date" = 2, "finishers" = 3, "volunteers" = 4) |>
         mutate(
-          Finishers = if_else(
-            Finishers == "Unknown",
+          volunteers = if_else(
+            volunteers == "Unknown",
             NA_character_,
-            Finishers
+            volunteers
           ),
-          event_no = as.integer(`Event ##`),
-          date = substr(Date, 1, 10) |> as.Date()
+          event_no = as.integer(event_no),
+          date = substr(date, 1, 10) |> as.Date()
         ) |>
         mutate(
-          test = gsub("([0-9]+).*$", "\\1", `Date/First Finishers`),
+          test = gsub("([0-9]+).*$", "\\1", finishers),
           finishers = as.integer(substr(
             test,
             1,
             (str_length(test) - 2) / 2 + 1
           )),
-          test2 = gsub("([0-9]+).*$", "\\1", `Finishers`),
+          test2 = gsub("([0-9]+).*$", "\\1", volunteers),
           volunteers = as.integer(substr(
             test2,
             1,
             (str_length(test2) - 2) / 2 + 1
           )),
-          .by = `Event ##`
+          .by = event_no
         ) |>
         select(event_no, date, finishers, volunteers)
+
       extract_segment <- function(url) {
         parts <- strsplit(url, "/", fixed = TRUE)
         vapply(
@@ -81,7 +82,7 @@ get_event_history = function(
           "history" = results,
           "name" = extract_segment(url)
         ),
-        class = c("parkrun_revent_history", "data.frame")
+        class = c("parkrun_event_history")
       )
     },
     error = function(e) {
