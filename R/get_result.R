@@ -110,18 +110,37 @@ get_result = function(
           )
       }
       # Extract volunteer URLs
-      volunteer_nodes <- html |>
-        html_nodes(
-          xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
-        )
+      # volunteer_nodes <- html |>
+      #   html_nodes(
+      #     xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
+      #   )
 
-      volunteer_urls <- volunteer_nodes |>
+      volunteers = html |>
+        html_element("div.Volunteers.Volunteers") |>
+        html_nodes("a") |>
         html_attr("href")
 
-      volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
+      volunteer_ids <- volunteers[grepl("/parkrunner/", volunteers)] |>
+        stringr::str_extract("\\d+(?=[^\\d]*$)")
 
-      volunteer_names = volunteer_nodes |>
-        html_text()
+      volunteer_names = html |>
+        html_element("div.Volunteers.Volunteers") |>
+        html_table() |>
+        dplyr::select(1)
+
+      names(volunteer_names) = "parkrunner"
+      volunteer_names = volunteer_names |>
+        mutate(
+          parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
+        )
+
+      # volunteer_urls <- volunteer_nodes |>
+      #   html_attr("href")
+
+      # volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
+
+      # volunteer_names = volunteer_nodes |>
+      #   html_text()
 
       structure(
         list(
