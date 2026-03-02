@@ -15,7 +15,8 @@ get_result(
     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     `Accept-Language` = "en-US,en;q=0.9", Connection = "keep-alive"),
   as_hms = FALSE,
-  as_Date = FALSE
+  as_Date = FALSE,
+  timeout = 15
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ get_result(
 \item{as_hms}{Return times as hms}
 
 \item{as_Date}{Return dates as Date}
+
+\item{timeout}{Control httr timeout}
 }
 \value{
 A list containing two elements:

@@ -9,6 +9,7 @@
 #' @param headers A named character vector of HTTP headers to use for the request.
 #' @param as_hms Return times as hms
 #' @param as_Date Return dates as Date
+#' @param timeout Control httr timeout
 #'
 #' @return A list containing two elements:
 #' \describe{
@@ -39,7 +40,8 @@ get_result = function(
     `Connection` = "keep-alive"
   ),
   as_hms = FALSE,
-  as_Date = FALSE
+  as_Date = FALSE,
+  timeout = 15
 ) {
   if (is.null(url)) {
     if (is.null(event) | is.null(event_no)) {
@@ -47,7 +49,12 @@ get_result = function(
     }
     url = glue::glue("https://{domain}/{event}/results/{event_no}/")
   }
-  response = httr::GET(url, add_headers(.headers = headers), timeout(15))
+  if (is.null(timeout)) {
+    response = httr::GET(url, add_headers(.headers = headers))
+  } else {
+    response = httr::GET(url, add_headers(.headers = headers), timeout(timeout))
+  }
+
   tryCatch(
     {
       if (status_code(response) != 200) {
@@ -58,7 +65,7 @@ get_result = function(
       event_date <- html |>
         html_element("span.format-date") |>
         html_text() |>
-        lubridate::as_date(format = "%d/%m/%Y")
+        lubridate::as_date()
 
       if (!as_Date) {
         event_date = format(event_date, "%Y-%m-%d")
@@ -86,8 +93,8 @@ get_result = function(
           ),
           .by = pos
         ) |>
-        drop_na(time) |>
         cbind.data.frame("id" = hyperlinks) |>
+        drop_na(time) |>
         mutate(
           pos = as.integer(pos),
           ag = as.numeric(ag)
@@ -104,25 +111,46 @@ get_result = function(
           )
       }
       # Extract volunteer URLs
-      volunteer_nodes <- html |>
-        html_nodes(
-          xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
-        )
+      # volunteer_nodes <- html |>
+      #   html_nodes(
+      #     xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
+      #   )
 
-      volunteer_urls <- volunteer_nodes |>
+      volunteers = html |>
+        html_element("div.Volunteers.Volunteers") |>
+        html_nodes("a") |>
         html_attr("href")
 
-      volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
+      volunteer_ids <- volunteers[grepl("/parkrunner/", volunteers)] |>
+        stringr::str_extract("\\d+(?=[^\\d]*$)")
 
-      volunteer_names = volunteer_nodes |>
-        html_text()
+      volunteer_names = html |>
+        html_element("div.Volunteers.Volunteers") |>
+        html_table() |>
+        dplyr::select(c(1, 2))
+
+      names(volunteer_names) = c("parkrunner", "role")
+      volunteer_names = volunteer_names |>
+        mutate(
+          parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
+        )
+
+      # todo split volunteer roles out and add language support
+
+      # volunteer_urls <- volunteer_nodes |>
+      #   html_attr("href")
+
+      # volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
+
+      # volunteer_names = volunteer_nodes |>
+      #   html_text()
 
       structure(
         list(
           results = results,
           volunteers = cbind.data.frame(
             "id" = volunteer_ids,
-            "parkrunner" = volunteer_names
+            volunteer_names
           ),
           date = event_date
         ),
