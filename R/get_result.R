@@ -39,7 +39,8 @@ get_result = function(
     `Connection` = "keep-alive"
   ),
   as_hms = FALSE,
-  as_Date = FALSE
+  as_Date = FALSE,
+  timeout = NULL
 ) {
   if (is.null(url)) {
     if (is.null(event) | is.null(event_no)) {
@@ -47,7 +48,12 @@ get_result = function(
     }
     url = glue::glue("https://{domain}/{event}/results/{event_no}/")
   }
-  response = httr::GET(url, add_headers(.headers = headers), timeout(15))
+  if (is.null(timeout)) {
+    response = httr::GET(url, add_headers(.headers = headers))
+  } else {
+    response = httr::GET(url, add_headers(.headers = headers), timeout(timeout))
+  }
+
   tryCatch(
     {
       if (status_code(response) != 200) {
@@ -58,7 +64,7 @@ get_result = function(
       event_date <- html |>
         html_element("span.format-date") |>
         html_text() |>
-        lubridate::as_date(format = "%d/%m/%Y")
+        lubridate::as_date()
 
       if (!as_Date) {
         event_date = format(event_date, "%Y-%m-%d")
@@ -86,8 +92,8 @@ get_result = function(
           ),
           .by = pos
         ) |>
-        drop_na(time) |>
         cbind.data.frame("id" = hyperlinks) |>
+        drop_na(time) |>
         mutate(
           pos = as.integer(pos),
           ag = as.numeric(ag)
