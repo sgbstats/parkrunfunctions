@@ -9,6 +9,7 @@
 #' @param headers A named character vector of HTTP headers to use for the request.
 #' @param as_hms Return times as hms
 #' @param as_Date Return dates as Date
+#' @param timeout Control httr timeout
 #'
 #' @return A list containing two elements:
 #' \describe{
@@ -40,7 +41,7 @@ get_result = function(
   ),
   as_hms = FALSE,
   as_Date = FALSE,
-  timeout = NULL
+  timeout = 15
 ) {
   if (is.null(url)) {
     if (is.null(event) | is.null(event_no)) {
@@ -126,13 +127,15 @@ get_result = function(
       volunteer_names = html |>
         html_element("div.Volunteers.Volunteers") |>
         html_table() |>
-        dplyr::select(1)
+        dplyr::select(c(1, 2))
 
-      names(volunteer_names) = "parkrunner"
+      names(volunteer_names) = c("parkrunner", "role")
       volunteer_names = volunteer_names |>
         mutate(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
         )
+
+      # todo split volunteer roles out and add language support
 
       # volunteer_urls <- volunteer_nodes |>
       #   html_attr("href")
@@ -147,7 +150,7 @@ get_result = function(
           results = results,
           volunteers = cbind.data.frame(
             "id" = volunteer_ids,
-            "parkrunner" = volunteer_names
+            volunteer_names
           ),
           date = event_date
         ),
