@@ -10,6 +10,8 @@
 #' @param as_hms Return times as hms
 #' @param as_Date Return dates as Date
 #' @param timeout Control httr timeout
+#' @param extra_data Extract extra data from results table (currently number of finishes)
+#'
 #'
 #' @return A list containing two elements:
 #' \describe{
@@ -41,7 +43,8 @@ get_result = function(
   ),
   as_hms = FALSE,
   as_Date = FALSE,
-  timeout = 15
+  timeout = 15,
+  extra_data = FALSE
 ) {
   if (is.null(url)) {
     if (is.null(event) | is.null(event_no)) {
@@ -84,7 +87,9 @@ get_result = function(
       names(results) = c("pos", "parkrunner", "time", "ag")
       results = results |>
         mutate(
-          parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim(),
+          finishes = as.integer(stringr::str_extract(parkrunner, "\\d+")),
+          parkrunner = stringr::str_extract(parkrunner, "^[^0-9]*") |>
+            str_trim(),
           time = str_extract(time, "^[0-9:]+"),
           ag = substr(
             ag,
@@ -99,6 +104,9 @@ get_result = function(
           pos = as.integer(pos),
           ag = as.numeric(ag)
         )
+      if (!extra_data) {
+        results = results |> select(pos, parkrunner, time, ag, id)
+      }
 
       if (as_hms) {
         results = results |>
@@ -134,16 +142,6 @@ get_result = function(
         mutate(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
         )
-
-      # todo split volunteer roles out and add language support
-
-      # volunteer_urls <- volunteer_nodes |>
-      #   html_attr("href")
-
-      # volunteer_ids <- stringr::str_extract(volunteer_urls, "\\d+(?=[^\\d]*$)")
-
-      # volunteer_names = volunteer_nodes |>
-      #   html_text()
 
       structure(
         list(
