@@ -15,7 +15,7 @@ test_that("get_event_history returns expected values for bushy event_no 1000", {
   #checking NAs
   last_row <- df[nrow(df), , drop = FALSE]
   expect_true(is.na(last_row$volunteers[[1]]))
-
+  Sys.sleep(10)
   df <- get_event_history(
     "https://www.parkrun.org.uk/bushy/results/eventhistory/"
   )[["history"]]
@@ -29,6 +29,7 @@ test_that("get_event_history returns expected values for bushy event_no 1000", {
 })
 
 test_that("get_event_history foreign", {
+  Sys.sleep(10)
   df <- get_event_history(
     "https://www.parkrun.com.de/alstervorland/results/eventhistory/"
   )[["history"]]
@@ -40,7 +41,7 @@ test_that("get_event_history foreign", {
   expect_equal(row$volunteers[[1]], 11)
   expect_equal(as.Date(row$date[[1]]), as.Date("2019-01-12"))
   expect_error(get_event_history(event = "alstervorland"))
-
+  Sys.sleep(10)
   df <- get_event_history(
     event = "alstervorland",
     domain = "parkrun.com.de"
@@ -52,7 +53,7 @@ test_that("get_event_history foreign", {
   expect_equal(row$finishers[[1]], 102)
   expect_equal(row$volunteers[[1]], 11)
   expect_equal(as.Date(row$date[[1]]), as.Date("2019-01-12"))
-
+  Sys.sleep(10)
   expect_no_error(
     get_event_history("https://www.parkrun.jp/chuokoen/results/eventhistory/")
   )

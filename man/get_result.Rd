@@ -16,7 +16,8 @@ get_result(
     `Accept-Language` = "en-US,en;q=0.9", Connection = "keep-alive"),
   as_hms = FALSE,
   as_Date = FALSE,
-  timeout = 15
+  timeout = 15,
+  extra_data = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ get_result(
 \item{as_Date}{Return dates as Date}
 
 \item{timeout}{Control httr timeout}
+
+\item{extra_data}{Extract extra data from results table (currently number of finishes)}
 }
 \value{
 A list containing two elements:
