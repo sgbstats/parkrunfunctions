@@ -35,6 +35,8 @@ test_that("get_result", {
     52.94
   )
   Sys.sleep(10)
+
+  #event_no
   result <- get_result(event = "wythenshawe", event_no = 647, as_hms = TRUE)
 
   testthat::expect_s3_class(result, "parkrun_results")
@@ -51,7 +53,7 @@ test_that("get_result", {
 
   result <- get_result(
     event = "wythenshawe",
-    event_date = "2026-03-01",
+    event_date = "2026-01-03",
     as_hms = TRUE
   )
 
@@ -70,7 +72,8 @@ test_that("get_result", {
 
   result <- get_result(
     event = "wythenshawe",
-    event_date = "01/03/2026",
+    event_date = "03/01/2026",
+    date_fmt = "%d/%m/%Y",
     as_hms = TRUE
   )
 
@@ -86,6 +89,74 @@ test_that("get_result", {
   testthat::expect_false("finishes" %in% names(result[["results"]]))
 
   Sys.sleep(10)
+
+  #testing that no event date is provided and event_no is provided, the function will choose the event_no first
+  result <- get_result(
+    event = "wythenshawe",
+    as_hms = TRUE
+  )
+
+  testthat::expect_s3_class(result, "parkrun_results")
+
+  Sys.sleep(10)
+  # chooses event no first
+  result <- get_result(
+    event = "wythenshawe",
+    event_no = 647,
+    event_date = "2026-01-10",
+    as_hms = TRUE
+  )
+
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Seb BATE") |>
+      nrow(),
+    1
+  )
+  Sys.sleep(10)
+  # error on date that doesn't exist
+
+  testthat::expect_error(
+    get_result(
+      event = "wythenshawe",
+      event_date = "2026-01-09",
+      as_hms = TRUE
+    )
+  )
+
+  testthat::expect_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_date = "01/03/2026",
+      date_fmt = NULL,
+      as_hms = TRUE
+    )
+  )
+  testthat::expect_no_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_date = "01/03/2026",
+      date_fmt = "%m/%d/%Y",
+      as_hms = TRUE
+    )
+  )
+  testthat::expect_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_date = "01/03/2026",
+      date_fmt = "%d/%m/%Y",
+      as_hms = TRUE
+    )
+  )
+  testthat::expect_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_date = "13/03/2026",
+      date_fmt = "%m/%d/%Y",
+      as_hms = TRUE
+    )
+  )
+  #extra data
   result_extra <- get_result(url, extra_data = TRUE)
 
   testthat::expect_true(

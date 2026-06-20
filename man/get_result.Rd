@@ -18,7 +18,8 @@ get_result(
   as_hms = FALSE,
   as_Date = FALSE,
   timeout = 15,
-  extra_data = FALSE
+  extra_data = FALSE,
+  date_fmt = "\%Y-\%m-\%d"
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ get_result(
 \item{timeout}{Control httr timeout}
 
 \item{extra_data}{Extract extra data from results table (currently number of finishes)}
+
+\item{date_fmt}{Format for the date (default is "\%Y-\%m-\%d") for event_date}
 }
 \value{
 A list containing two elements:
