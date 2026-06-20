@@ -8,6 +8,7 @@ get_result(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  event_date = NULL,
   domain = "parkrun.org.uk",
   headers = c(`User-Agent` =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
@@ -26,6 +27,8 @@ get_result(
 \item{event}{The parkrun event short name (e.g., "bushy"). Required if \code{url} is not provided.}
 
 \item{event_no}{The parkrun event number (e.g., 1).}
+
+\item{event_date}{the date of the event (if event_no is NULL)}
 
 \item{domain}{The parkrun domain (default is "parkrun.org.uk").}
 

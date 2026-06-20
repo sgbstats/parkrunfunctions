@@ -5,6 +5,7 @@
 #' @param url A character string specifying the URL of the parkrun results page. Non-uk prs need a url or update the domain.
 #' @param event The parkrun event short name (e.g., "bushy"). Required if `url` is not provided.
 #' @param event_no The parkrun event number (e.g., 1).
+#' @param event_date the date of the event (if event_no is NULL)
 #' @param domain The parkrun domain (default is "parkrun.org.uk").
 #' @param headers A named character vector of HTTP headers to use for the request.
 #' @param as_hms Return times as hms
@@ -34,6 +35,7 @@ get_result = function(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  event_date = NULL,
   domain = "parkrun.org.uk",
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
@@ -47,15 +49,28 @@ get_result = function(
   extra_data = FALSE
 ) {
   if (is.null(url)) {
-    if (is.null(event) | is.null(event_no)) {
-      stop("Either 'url' or both 'event' and 'event_no' must be provided.")
+    if (is.null(event) || (is.null(event_no) && is.null(event_date))) {
+      stop(
+        "Either 'url' or 'event' plus one of 'event_no' or 'event_date' must be provided."
+      )
     }
-    url = glue::glue("https://{domain}/{event}/results/{event_no}/")
+    if (!is.null(event_no)) {
+      url = glue::glue("https://{domain}/{event}/results/{event_no}/")
+    } else {
+      # format provided event_date if it's a Date, otherwise coerce to character
+      if (inherits(event_date, "Date")) {
+        event_date_fmt <- format(event_date, "%Y-%m-%d")
+      } else {
+        event_date_fmt <- as.character(event_date)
+      }
+      url = glue::glue("https://{domain}/{event}/results/{event_date_fmt}/")
+    }
   }
+
   if (is.null(timeout)) {
-    response = httr::GET(url, add_headers(.headers = headers))
+    response = GET(url, add_headers(.headers = headers))
   } else {
-    response = httr::GET(url, add_headers(.headers = headers), timeout(timeout))
+    response = GET(url, add_headers(.headers = headers), timeout(timeout))
   }
 
   tryCatch(

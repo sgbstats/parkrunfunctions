@@ -48,6 +48,44 @@ test_that("get_result", {
 
   testthat::expect_false("finishes" %in% names(result[["results"]]))
   Sys.sleep(10)
+
+  result <- get_result(
+    event = "wythenshawe",
+    event_date = "2026-03-01",
+    as_hms = TRUE
+  )
+
+  testthat::expect_s3_class(result, "parkrun_results")
+
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Seb BATE") |>
+      nrow(),
+    1
+  )
+
+  testthat::expect_false("finishes" %in% names(result[["results"]]))
+
+  Sys.sleep(10)
+
+  result <- get_result(
+    event = "wythenshawe",
+    event_date = "01/03/2026",
+    as_hms = TRUE
+  )
+
+  testthat::expect_s3_class(result, "parkrun_results")
+
+  testthat::expect_equal(
+    result[["results"]] |>
+      dplyr::filter(id == "493595", parkrunner == "Seb BATE") |>
+      nrow(),
+    1
+  )
+
+  testthat::expect_false("finishes" %in% names(result[["results"]]))
+
+  Sys.sleep(10)
   result_extra <- get_result(url, extra_data = TRUE)
 
   testthat::expect_true(
