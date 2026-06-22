@@ -62,7 +62,7 @@ get_result <- function(
       # format provided event_date if it's a Date, otherwise coerce to character
       if (inherits(event_date, "Date")) {
         event_date_fmt <- format(event_date, "%Y-%m-%d")
-      } else if (!is.null(event_date_fmt)) {
+      } else if (!is.null(date_fmt)) {
         event_date_fmt <- format(
           as.Date(event_date, format = date_fmt),
           format = "%Y-%m-%d"

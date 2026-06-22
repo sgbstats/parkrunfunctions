@@ -34,7 +34,7 @@ test_that("get_result", {
       dplyr::filter(id == "493595", parkrunner == "Seb BATE"))$ag,
     52.94
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
 
   #event_no
   result <- get_result(event = "wythenshawe", event_no = 647, as_hms = TRUE)
@@ -49,14 +49,15 @@ test_that("get_result", {
   )
 
   testthat::expect_false("finishes" %in% names(result[["results"]]))
-  Sys.sleep(10)
+  Sys.sleep(23)
 
-  result <- get_result(
-    event = "wythenshawe",
-    event_date = "2026-01-03",
-    as_hms = TRUE
+  expect_no_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_date = "2026-01-03",
+      as_hms = TRUE
+    )
   )
-
   testthat::expect_s3_class(result, "parkrun_results")
 
   testthat::expect_equal(
@@ -68,7 +69,7 @@ test_that("get_result", {
 
   testthat::expect_false("finishes" %in% names(result[["results"]]))
 
-  Sys.sleep(10)
+  Sys.sleep(23)
 
   result <- get_result(
     event = "wythenshawe",
@@ -88,7 +89,7 @@ test_that("get_result", {
 
   testthat::expect_false("finishes" %in% names(result[["results"]]))
 
-  Sys.sleep(10)
+  Sys.sleep(23)
 
   #testing that no event date is provided and event_no is provided, the function will choose the event_no first
   result <- get_result(
@@ -98,13 +99,15 @@ test_that("get_result", {
 
   testthat::expect_s3_class(result, "parkrun_results")
 
-  Sys.sleep(10)
+  Sys.sleep(23)
   # chooses event no first
-  result <- get_result(
-    event = "wythenshawe",
-    event_no = 647,
-    event_date = "2026-01-10",
-    as_hms = TRUE
+  expect_no_error(
+    result <- get_result(
+      event = "wythenshawe",
+      event_no = 647,
+      event_date = "2026-01-10",
+      as_hms = TRUE
+    )
   )
 
   testthat::expect_equal(
@@ -113,7 +116,7 @@ test_that("get_result", {
       nrow(),
     1
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   # error on date that doesn't exist
 
   testthat::expect_error(
@@ -175,7 +178,7 @@ test_that("get_result", {
       nrow(),
     1
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   result <- get_result(
     url,
     event = "wythenshawe",
@@ -212,33 +215,28 @@ test_that("get_result", {
 })
 
 test_that("get_result foreign", {
-  Sys.sleep(10)
-  testthat::expect_no_warning(
-    get_result(
-      url = "https://www.parkrun.pl/krakow/results/601/"
-    )
-  )
-  Sys.sleep(10)
+  Sys.sleep(23)
+
   testthat::expect_equal(
     get_result(
       url = "https://www.parkrun.pl/krakow/results/601/"
     )$results$ag[110],
     47.47
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   testthat::expect_no_warning(
     get_result(
       url = "https://www.parkrun.dk/faelledparken/results/677/"
     )
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   testthat::expect_error(
     get_result(
       event = "faelledparken",
       event_no = 677
     )
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   testthat::expect_no_error(
     get_result(
       event = "faelledparken",
@@ -246,7 +244,7 @@ test_that("get_result foreign", {
       domain = "parkrun.dk"
     )
   )
-  Sys.sleep(10)
+  Sys.sleep(23)
   testthat::expect_no_warning(
     get_result(
       url = "https://www.parkrun.jp/chuokoen/results/150"
