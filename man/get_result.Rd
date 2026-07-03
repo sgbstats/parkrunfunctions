@@ -8,6 +8,7 @@ get_result(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  event_date = NULL,
   domain = "parkrun.org.uk",
   headers = c(`User-Agent` =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
@@ -17,7 +18,8 @@ get_result(
   as_hms = FALSE,
   as_Date = FALSE,
   timeout = 15,
-  extra_data = FALSE
+  extra_data = FALSE,
+  date_fmt = "\%Y-\%m-\%d"
 )
 }
 \arguments{
@@ -26,6 +28,8 @@ get_result(
 \item{event}{The parkrun event short name (e.g., "bushy"). Required if \code{url} is not provided.}
 
 \item{event_no}{The parkrun event number (e.g., 1).}
+
+\item{event_date}{the date of the event (if event_no is NULL)}
 
 \item{domain}{The parkrun domain (default is "parkrun.org.uk").}
 
@@ -38,6 +42,8 @@ get_result(
 \item{timeout}{Control httr timeout}
 
 \item{extra_data}{Extract extra data from results table (currently number of finishes)}
+
+\item{date_fmt}{Format for the date (default is "\%Y-\%m-\%d") for event_date}
 }
 \value{
 A list containing two elements:

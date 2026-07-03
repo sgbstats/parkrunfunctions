@@ -5,12 +5,14 @@
 #' @param url A character string specifying the URL of the parkrun results page. Non-uk prs need a url or update the domain.
 #' @param event The parkrun event short name (e.g., "bushy"). Required if `url` is not provided.
 #' @param event_no The parkrun event number (e.g., 1).
+#' @param event_date the date of the event (if event_no is NULL)
 #' @param domain The parkrun domain (default is "parkrun.org.uk").
 #' @param headers A named character vector of HTTP headers to use for the request.
 #' @param as_hms Return times as hms
 #' @param as_Date Return dates as Date
 #' @param timeout Control httr timeout
 #' @param extra_data Extract extra data from results table (currently number of finishes)
+#' @param date_fmt Format for the date (default is "%Y-%m-%d") for event_date
 #'
 #'
 #' @return A list containing two elements:
@@ -30,10 +32,11 @@
 #' @importFrom hms as_hms
 #' @importFrom lubridate as_date
 #' @importFrom stats time
-get_result = function(
+get_result <- function(
   url = NULL,
   event = NULL,
   event_no = NULL,
+  event_date = NULL,
   domain = "parkrun.org.uk",
   headers = c(
     `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
@@ -44,18 +47,41 @@ get_result = function(
   as_hms = FALSE,
   as_Date = FALSE,
   timeout = 15,
-  extra_data = FALSE
+  extra_data = FALSE,
+  date_fmt = "%Y-%m-%d"
 ) {
   if (is.null(url)) {
-    if (is.null(event) | is.null(event_no)) {
-      stop("Either 'url' or both 'event' and 'event_no' must be provided.")
+    if (is.null(event) || is.null(domain)) {
+      stop(
+        "Either 'url' or 'event' plus 'domain' must be provided."
+      )
     }
-    url = glue::glue("https://{domain}/{event}/results/{event_no}/")
+    if (!is.null(event_no)) {
+      url <- glue::glue("https://{domain}/{event}/results/{event_no}/")
+    } else if (!is.null(event_date)) {
+      # format provided event_date if it's a Date, otherwise coerce to character
+      if (inherits(event_date, "Date")) {
+        event_date_fmt <- format(event_date, "%Y-%m-%d")
+      } else if (!is.null(date_fmt)) {
+        event_date_fmt <- format(
+          as.Date(event_date, format = date_fmt),
+          format = "%Y-%m-%d"
+        )
+      } else {
+        stop(
+          "Abiguous event_date provided. Please provide a Date object or specify the date_fmt argument."
+        )
+      }
+      url <- glue::glue("https://{domain}/{event}/results/{event_date_fmt}/")
+    } else {
+      url <- glue::glue("https://{domain}/{event}/results/")
+    }
   }
+
   if (is.null(timeout)) {
-    response = httr::GET(url, add_headers(.headers = headers))
+    response <- GET(url, add_headers(.headers = headers))
   } else {
-    response = httr::GET(url, add_headers(.headers = headers), timeout(timeout))
+    response <- GET(url, add_headers(.headers = headers), timeout(timeout))
   }
 
   tryCatch(
@@ -71,7 +97,7 @@ get_result = function(
         lubridate::as_date()
 
       if (!as_Date) {
-        event_date = format(event_date, "%Y-%m-%d")
+        event_date <- format(event_date, "%Y-%m-%d")
       }
 
       tables <- html |> html_element("div.Results.Results")
@@ -84,8 +110,8 @@ get_result = function(
 
       results <- tables |> html_table() |> dplyr::select(c(1, 2, 6, 4))
 
-      names(results) = c("pos", "parkrunner", "time", "ag")
-      results = results |>
+      names(results) <- c("pos", "parkrunner", "time", "ag")
+      results <- results |>
         mutate(
           finishes = as.integer(stringr::str_extract(parkrunner, "\\d+")),
           parkrunner = stringr::str_extract(parkrunner, "^[^0-9]*") |>
@@ -105,11 +131,11 @@ get_result = function(
           ag = as.numeric(ag)
         )
       if (!extra_data) {
-        results = results |> select(pos, parkrunner, time, ag, id)
+        results <- results |> select(pos, parkrunner, time, ag, id)
       }
 
       if (as_hms) {
-        results = results |>
+        results <- results |>
           mutate(
             time = as_hms(dplyr::if_else(
               stringr::str_length(time) == 5,
@@ -124,7 +150,7 @@ get_result = function(
       #     xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
       #   )
 
-      volunteers = html |>
+      volunteers <- html |>
         html_element("div.Volunteers.Volunteers") |>
         html_nodes("a") |>
         html_attr("href")
@@ -132,13 +158,13 @@ get_result = function(
       volunteer_ids <- volunteers[grepl("/parkrunner/", volunteers)] |>
         stringr::str_extract("\\d+(?=[^\\d]*$)")
 
-      volunteer_names = html |>
+      volunteer_names <- html |>
         html_element("div.Volunteers.Volunteers") |>
         html_table() |>
         dplyr::select(c(1, 2))
 
-      names(volunteer_names) = c("parkrunner", "role")
-      volunteer_names = volunteer_names |>
+      names(volunteer_names) <- c("parkrunner", "role")
+      volunteer_names <- volunteer_names |>
         mutate(
           parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
         )
