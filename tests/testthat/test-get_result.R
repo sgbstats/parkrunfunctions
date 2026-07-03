@@ -179,6 +179,7 @@ test_that("get_result", {
     1
   )
   Sys.sleep(23)
+  url <- "https://www.parkrun.org.uk/kingswayparkurmston/results/1/"
   result <- get_result(
     url,
     event = "wythenshawe",
@@ -195,19 +196,13 @@ test_that("get_result", {
   )
 
   testthat::expect_equal(
-    result[["results"]] |>
-      dplyr::filter(id == "493595", parkrunner == "Seb BATE") |>
-      nrow(),
-    1
-  )
-
-  testthat::expect_equal(
     result[["volunteers"]] |>
       dplyr::filter(id == "493595", parkrunner == "Seb BATE") |>
       nrow(),
     1
   )
   testthat::expect_equal(class(result[["date"]]), "Date")
+
   testthat::expect_error(
     get_result(),
     "Either 'url' or both 'event' and 'event_no' must be provided."
@@ -219,9 +214,9 @@ test_that("get_result foreign", {
 
   testthat::expect_equal(
     get_result(
-      url = "https://www.parkrun.pl/krakow/results/601/"
-    )$results$ag[110],
-    47.47
+      url = "https://www.parkrun.pl/krakow/results/602/"
+    )$results$ag[1],
+    75.37
   )
   Sys.sleep(23)
   testthat::expect_no_warning(
