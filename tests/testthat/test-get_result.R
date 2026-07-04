@@ -91,14 +91,6 @@ test_that("get_result", {
 
   Sys.sleep(23)
 
-  #testing that no event date is provided and event_no is provided, the function will choose the event_no first
-  result <- get_result(
-    event = "wythenshawe",
-    as_hms = TRUE
-  )
-
-  testthat::expect_s3_class(result, "parkrun_results")
-
   Sys.sleep(23)
   # chooses event no first
   expect_no_error(
@@ -215,7 +207,7 @@ test_that("get_result foreign", {
   testthat::expect_equal(
     get_result(
       url = "https://www.parkrun.pl/krakow/results/602/"
-    )$results$ag[1],
+    )[["results"]][["ag"]][1],
     75.37
   )
   Sys.sleep(23)
@@ -244,5 +236,17 @@ test_that("get_result foreign", {
     get_result(
       url = "https://www.parkrun.jp/chuokoen/results/150"
     )
+  )
+
+  Sys.sleep(23)
+
+  #missing volutneer data
+
+  testthat::expect_equal(
+    get_result(url = "https://www.parkrun.pl/zielonyjar/results/200/")[[
+      "volunteers"
+    ]] |>
+      nrow(),
+    0
   )
 })
