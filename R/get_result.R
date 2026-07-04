@@ -149,33 +149,44 @@ get_result <- function(
       #   html_nodes(
       #     xpath = "//p[contains(., 'We are very grateful to the volunteers who made this event happen')]//a"
       #   )
+      volunteers_out <- tryCatch(
+        {
+          volunteers <- html |>
+            html_element("div.Volunteers.Volunteers") |>
+            html_nodes("a") |>
+            html_attr("href")
 
-      volunteers <- html |>
-        html_element("div.Volunteers.Volunteers") |>
-        html_nodes("a") |>
-        html_attr("href")
+          volunteer_ids <- volunteers[grepl("/parkrunner/", volunteers)] |>
+            stringr::str_extract("\\d+(?=[^\\d]*$)")
 
-      volunteer_ids <- volunteers[grepl("/parkrunner/", volunteers)] |>
-        stringr::str_extract("\\d+(?=[^\\d]*$)")
+          volunteer_names <- html |>
+            html_element("div.Volunteers.Volunteers") |>
+            html_table() |>
+            dplyr::select(c(1, 2))
 
-      volunteer_names <- html |>
-        html_element("div.Volunteers.Volunteers") |>
-        html_table() |>
-        dplyr::select(c(1, 2))
+          names(volunteer_names) <- c("parkrunner", "role")
+          volunteer_names <- volunteer_names |>
+            mutate(
+              parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
+            )
 
-      names(volunteer_names) <- c("parkrunner", "role")
-      volunteer_names <- volunteer_names |>
-        mutate(
-          parkrunner = str_extract(parkrunner, "^[^0-9]*") |> str_trim()
-        )
-
+          cbind.data.frame(
+            "id" = volunteer_ids,
+            volunteer_names
+          )
+        },
+        error = function(e) {
+          data.frame(
+            id = character(),
+            parkrunner = character(),
+            role = character()
+          )
+        }
+      )
       structure(
         list(
           results = results,
-          volunteers = cbind.data.frame(
-            "id" = volunteer_ids,
-            volunteer_names
-          ),
+          volunteers = volunteers_out,
           date = event_date
         ),
         class = "parkrun_results"
